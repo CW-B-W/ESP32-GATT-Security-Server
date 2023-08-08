@@ -284,7 +284,7 @@ static void __attribute__((unused)) remove_all_bonded_devices(void)
 
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
 {
-    ESP_LOGV(GATTS_TABLE_TAG, "GAP_EVT, event %d\n", event);
+    ESP_LOGV(GATTS_TABLE_TAG, "GAP_EVT, event 0x%02x\n", event);
 
     switch (event) {
     case ESP_GAP_BLE_SCAN_RSP_DATA_SET_COMPLETE_EVT:
@@ -302,7 +302,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
     case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
         //advertising start complete event to indicate advertising start successfully or failed
         if (param->adv_start_cmpl.status != ESP_BT_STATUS_SUCCESS) {
-            ESP_LOGE(GATTS_TABLE_TAG, "advertising start failed, error status = %x", param->adv_start_cmpl.status);
+            ESP_LOGE(GATTS_TABLE_TAG, "advertising start failed, error status = 0x%02x", param->adv_start_cmpl.status);
             break;
         }
         ESP_LOGI(GATTS_TABLE_TAG, "advertising start success");
@@ -352,7 +352,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
         ESP_LOGI(GATTS_TABLE_TAG, "address type = %d", param->ble_security.auth_cmpl.addr_type);
         ESP_LOGI(GATTS_TABLE_TAG, "pair status = %s",param->ble_security.auth_cmpl.success ? "success" : "fail");
         if(!param->ble_security.auth_cmpl.success) {
-            ESP_LOGI(GATTS_TABLE_TAG, "fail reason = 0x%x",param->ble_security.auth_cmpl.fail_reason);
+            ESP_LOGI(GATTS_TABLE_TAG, "fail reason = 0x0x%02x",param->ble_security.auth_cmpl.fail_reason);
         } else {
             ESP_LOGI(GATTS_TABLE_TAG, "auth mode = %s",esp_auth_req_to_str(param->ble_security.auth_cmpl.auth_mode));
         }
@@ -369,20 +369,20 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
     }
     case ESP_GAP_BLE_SET_LOCAL_PRIVACY_COMPLETE_EVT:
         if (param->local_privacy_cmpl.status != ESP_BT_STATUS_SUCCESS){
-            ESP_LOGE(GATTS_TABLE_TAG, "config local privacy failed, error status = %x", param->local_privacy_cmpl.status);
+            ESP_LOGE(GATTS_TABLE_TAG, "config local privacy failed, error status = 0x%02x", param->local_privacy_cmpl.status);
             break;
         }
 
         esp_err_t ret = esp_ble_gap_config_adv_data(&heart_rate_adv_config);
         if (ret){
-            ESP_LOGE(GATTS_TABLE_TAG, "config adv data failed, error code = %x", ret);
+            ESP_LOGE(GATTS_TABLE_TAG, "config adv data failed, error code = 0x%02x", ret);
         }else{
             adv_config_done |= ADV_CONFIG_FLAG;
         }
 
         ret = esp_ble_gap_config_adv_data(&heart_rate_scan_rsp_config);
         if (ret){
-            ESP_LOGE(GATTS_TABLE_TAG, "config adv data failed, error code = %x", ret);
+            ESP_LOGE(GATTS_TABLE_TAG, "config adv data failed, error code = 0x%02x", ret);
         }else{
             adv_config_done |= SCAN_RSP_CONFIG_FLAG;
         }
@@ -396,7 +396,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
 static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
                                         esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
 {
-    ESP_LOGV(GATTS_TABLE_TAG, "event = %x\n",event);
+    ESP_LOGV(GATTS_TABLE_TAG, "event = 0x%02x\n",event);
     switch (event) {
         case ESP_GATTS_REG_EVT:
             esp_ble_gap_set_device_name(EXAMPLE_DEVICE_NAME);
@@ -431,7 +431,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
             esp_ble_set_encryption(param->connect.remote_bda, ESP_BLE_SEC_ENCRYPT_MITM);
             break;
         case ESP_GATTS_DISCONNECT_EVT:
-            ESP_LOGI(GATTS_TABLE_TAG, "ESP_GATTS_DISCONNECT_EVT, disconnect reason 0x%x", param->disconnect.reason);
+            ESP_LOGI(GATTS_TABLE_TAG, "ESP_GATTS_DISCONNECT_EVT, disconnect reason 0x%02x", param->disconnect.reason);
             /* start advertising again when missing the connect */
             esp_ble_gap_start_advertising(&heart_rate_adv_params);
             break;
@@ -446,7 +446,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
         case ESP_GATTS_CONGEST_EVT:
             break;
         case ESP_GATTS_CREAT_ATTR_TAB_EVT: {
-            ESP_LOGI(GATTS_TABLE_TAG, "The number handle = %x",param->add_attr_tab.num_handle);
+            ESP_LOGI(GATTS_TABLE_TAG, "The number handle = 0x%02x",param->add_attr_tab.num_handle);
             if (param->create.status == ESP_GATT_OK){
                 if(param->add_attr_tab.num_handle == HRS_IDX_NB) {
                     memcpy(heart_rate_handle_table, param->add_attr_tab.handles,
@@ -457,7 +457,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
                          param->add_attr_tab.num_handle, HRS_IDX_NB);
                 }
             }else{
-                ESP_LOGE(GATTS_TABLE_TAG, " Create attribute table failed, error code = %x", param->create.status);
+                ESP_LOGE(GATTS_TABLE_TAG, " Create attribute table failed, error code = 0x%02x", param->create.status);
             }
         break;
     }
@@ -536,17 +536,17 @@ void app_main(void)
 
     ret = esp_ble_gatts_register_callback(gatts_event_handler);
     if (ret){
-        ESP_LOGE(GATTS_TABLE_TAG, "gatts register error, error code = %x", ret);
+        ESP_LOGE(GATTS_TABLE_TAG, "gatts register error, error code = 0x%02x", ret);
         return;
     }
     ret = esp_ble_gap_register_callback(gap_event_handler);
     if (ret){
-        ESP_LOGE(GATTS_TABLE_TAG, "gap register error, error code = %x", ret);
+        ESP_LOGE(GATTS_TABLE_TAG, "gap register error, error code = 0x%02x", ret);
         return;
     }
     ret = esp_ble_gatts_app_register(ESP_HEART_RATE_APP_ID);
     if (ret){
-        ESP_LOGE(GATTS_TABLE_TAG, "gatts app register error, error code = %x", ret);
+        ESP_LOGE(GATTS_TABLE_TAG, "gatts app register error, error code = 0x%02x", ret);
         return;
     }
 
