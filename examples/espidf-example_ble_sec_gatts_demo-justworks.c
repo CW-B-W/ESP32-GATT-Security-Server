@@ -367,7 +367,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
         ESP_LOGI(GATTS_TABLE_TAG, "------------------------------------");
         break;
     }
-    case ESP_GAP_BLE_SET_LOCAL_PRIVACY_COMPLETE_EVT:
+    case ESP_GAP_BLE_SET_LOCAL_PRIVACY_COMPLETE_EVT: {
         if (param->local_privacy_cmpl.status != ESP_BT_STATUS_SUCCESS){
             ESP_LOGE(GATTS_TABLE_TAG, "config local privacy failed, error status = 0x%02x", param->local_privacy_cmpl.status);
             break;
@@ -388,6 +388,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
         }
 
         break;
+    }
     default:
         break;
     }
@@ -552,17 +553,13 @@ void app_main(void)
 
     /* set the security iocap & auth_req & key size & init key response key parameters to the stack*/
     esp_ble_auth_req_t auth_req = ESP_LE_AUTH_REQ_SC_MITM_BOND;     //bonding with peer device after authentication
-    /* To use Passkey to pair with iPhone, `IO Capabilities` cannot be `NoInput NoOutput (None)`   */
-    /* Because iPhone has set `Keyboard Display` flag, thus `None` results in using `JustWorks`    */
-    esp_ble_io_cap_t iocap = ESP_IO_CAP_OUT;
-
-
+    esp_ble_io_cap_t iocap = ESP_IO_CAP_NONE;           //set the IO capability to No output No input
     uint8_t key_size = 16;      //the key size should be 7~16 bytes
     uint8_t init_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
     uint8_t rsp_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
     //set static passkey
     uint32_t passkey = 123456;
-    uint8_t auth_option = ESP_BLE_ONLY_ACCEPT_SPECIFIED_AUTH_ENABLE;
+    uint8_t auth_option = ESP_BLE_ONLY_ACCEPT_SPECIFIED_AUTH_DISABLE;
     uint8_t oob_support = ESP_BLE_OOB_DISABLE;
     esp_ble_gap_set_security_param(ESP_BLE_SM_SET_STATIC_PASSKEY, &passkey, sizeof(uint32_t));
     esp_ble_gap_set_security_param(ESP_BLE_SM_AUTHEN_REQ_MODE, &auth_req, sizeof(uint8_t));

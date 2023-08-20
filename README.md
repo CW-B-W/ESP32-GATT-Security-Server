@@ -4,7 +4,7 @@ This repo is based on [gatt_security_server](https://github.com/espressif/esp-id
 
 # Examples
 ## Just Works
-The official example [example_ble_sec_gatts_demo.c](https://github.com/espressif/esp-idf/blob/master/examples/bluetooth/bluedroid/ble/gatt_security_server/main/example_ble_sec_gatts_demo.c) uses Just Works to pair with iPhone.
+The official example [espidf-example_ble_sec_gatts_demo.c](https://github.com/espressif/esp-idf/blob/master/examples/bluetooth/bluedroid/ble/gatt_security_server/main/espidf-example_ble_sec_gatts_demo.c) uses Just Works to pair with iPhone.
 
 In this example, `ESP_LE_AUTH_REQ_SC_MITM_BOND`, `ESP_IO_CAP_NONE` and `ESP_BLE_OOB_DISABLE` are used.
 
